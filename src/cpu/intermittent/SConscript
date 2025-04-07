@@ -1,0 +1,10 @@
+# -*- mode:python -*-
+
+Import("*")
+
+Source("interrupts.cc")
+
+SimObject("IntermittentInterrupts.py",
+        sim_objects=["IntermittentInterrupts"],
+        enums=["IntermittentOutageSignature"]
+)

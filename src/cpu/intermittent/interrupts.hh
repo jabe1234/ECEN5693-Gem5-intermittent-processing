@@ -4,8 +4,8 @@
 #include "arch/generic/interrupts.hh"
 #include "base/logging.hh"
 #include "cpu/thread_context.hh"
-#include "debug/Interrupt.hh"
 #include "params/IntermittentInterrupts.hh"
+#include "sim/faults.hh"
 
 namespace gem5
 {
@@ -23,12 +23,31 @@ enum InterruptTypes
 enum DistributionType
 {
         DST_CONST, //power is off every constant ticks
-        //DST_SINE, //power is off when sine is <0
-        //DST_POISSON, //power outages happen on a poisson distribution
+        DST_SINE, //power is off when sine is <0
+        DST_POISSON, //power outages happen on a poisson distribution
         NumDistributionTypes
 };
 
-class Interrrupts : public BaseInterrupts
+class OutageSoon : public FaultBase
+{
+    public:
+        FaultName name() const override { return "intermittent_outage"; }
+
+        void invoke(ThreadContext *tc, const StaticInstPtr &inst=
+                                nullStaticInstPtr) override;
+};
+
+class Restored : public FaultBase
+{
+    public:
+        FaultName name() const override { return "intermittent_restore"; }
+
+        void invoke(ThreadContext *tc, const StaticInstPtr &inst=
+                                nullStaticInstPtr) override;
+
+};
+
+class Interrupts : public BaseInterrupts
 {
         private:
                 BaseInterrupts *wrapped = nullptr;
@@ -44,10 +63,11 @@ class Interrrupts : public BaseInterrupts
 
                 Interrupts(const Params &p) :
                         BaseInterrupts(p),
-                                                wrapped(p.wrapped),
-                        outageSignature(p.outageSignature),
+                        wrapped(p.wrapped),
+                        outageSignature((int)p.outageSignature),
                         distribFactor(p.distribFactor),
                         outageTicks(p.outageTicks) {
+
                         clearAll();
                 }
 

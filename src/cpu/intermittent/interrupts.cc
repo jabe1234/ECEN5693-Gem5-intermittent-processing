@@ -5,7 +5,21 @@
 namespace gem5
 {
 
-bool Intermittent::Interrupts::checkInterrupts() const override {
+void
+Intermittent::OutageSoon::invoke(
+                        ThreadContext *tc,
+                        const StaticInstPtr &inst) {
+        inform("Intermittent Power Outage Soon!");
+}
+
+void
+Intermittent::Restored::invoke(
+                        ThreadContext *tc,
+                        const StaticInstPtr &inst) {
+        inform("Intermittent Power Restored!");
+}
+
+bool Intermittent::Interrupts::checkInterrupts() const {
         for (int i = 0; i < Intermittent::NumInterruptTypes; i++) {
                 if (interrupts[i]) return true;
         }
@@ -13,9 +27,12 @@ bool Intermittent::Interrupts::checkInterrupts() const override {
         return wrapped->checkInterrupts();
 }
 
-Fault Intermittent::Interrupts::getInterrupt() override {
-        if (interrupts[Intermittent::INT_OUTAGESOON]) return NoFault; //TODO
-        if (interrupts[Intermittent::INT_RESTORED]) return NoFault; //TODO
+Fault Intermittent::Interrupts::getInterrupt() {
+        if (interrupts[Intermittent::INT_OUTAGESOON])
+                        return std::make_shared<Intermittent::OutageSoon>();
+
+        if (interrupts[Intermittent::INT_RESTORED])
+                        return std::make_shared<Intermittent::Restored>();
 
         return wrapped->getInterrupt();
 }
