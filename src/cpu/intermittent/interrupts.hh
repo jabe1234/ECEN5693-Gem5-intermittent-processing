@@ -69,8 +69,15 @@ class Interrupts : public BaseInterrupts
                         outageTicks(p.outageTicks) {
 
                     inform("initialized intermittent interrupts controller!");
+
                     clearAll();
                 }
+
+                                void setThreadContext(ThreadContext *_tc)
+                                        override {
+                                                tc = _tc;
+                                                wrapped->setThreadContext(_tc);
+                                }
 
                 void post(int int_num, int index) override {
                         wrapped->post(int_num, index);

@@ -1,7 +1,7 @@
 //TODO: Insert Copyright Here
 
 #include "cpu/intermittent/interrupts.hh"
-#include <iostream>
+#include "sim/eventq.hh"
 
 using namespace std;
 
@@ -23,9 +23,7 @@ Intermittent::Restored::invoke(
 }
 
 bool Intermittent::Interrupts::checkInterrupts() const {
-        cout <<
-                        "Intermittent Wrapper is checking for interrupts"
-                        << endl;
+                dumpMainQueue();
         for (int i = 0; i < Intermittent::NumInterruptTypes; i++) {
                 if (interrupts[i]) return true;
         }
