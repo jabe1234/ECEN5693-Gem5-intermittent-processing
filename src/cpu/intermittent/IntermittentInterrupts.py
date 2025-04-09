@@ -24,3 +24,6 @@ class IntermittentInterrupts(BaseInterrupts):
     )
 
     outageTicks = Param.Int(1, "Duration of Ticks the Outage takes")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)

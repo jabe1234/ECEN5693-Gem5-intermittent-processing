@@ -1,6 +1,9 @@
 //TODO: Insert Copyright Here
 
 #include "cpu/intermittent/interrupts.hh"
+#include <iostream>
+
+using namespace std;
 
 namespace gem5
 {
@@ -20,6 +23,9 @@ Intermittent::Restored::invoke(
 }
 
 bool Intermittent::Interrupts::checkInterrupts() const {
+        cout <<
+                        "Intermittent Wrapper is checking for interrupts"
+                        << endl;
         for (int i = 0; i < Intermittent::NumInterruptTypes; i++) {
                 if (interrupts[i]) return true;
         }

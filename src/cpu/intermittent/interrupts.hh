@@ -68,7 +68,8 @@ class Interrupts : public BaseInterrupts
                         distribFactor(p.distribFactor),
                         outageTicks(p.outageTicks) {
 
-                        clearAll();
+                    inform("initialized intermittent interrupts controller!");
+                    clearAll();
                 }
 
                 void post(int int_num, int index) override {

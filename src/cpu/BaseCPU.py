@@ -41,10 +41,12 @@
 import sys
 
 from m5.defines import buildEnv
+from m5.objects import IntermittentInterrupts
 from m5.objects.ClockDomain import *
 from m5.objects.ClockedObject import ClockedObject
 from m5.objects.CPUTracers import ExeTracer
 from m5.objects.InstTracer import InstTracer
+from m5.objects.IntermittentInterrupts import IntermittentInterrupts
 from m5.objects.IntPin import VectorIntSourcePin
 from m5.objects.Platform import Platform
 from m5.objects.ResetPort import ResetResponsePort
@@ -174,7 +176,8 @@ class BaseCPU(ClockedObject):
 
     def createInterruptController(self):
         self.interrupts = [
-            self.ArchInterrupts() for i in range(self.numThreads)
+            IntermittentInterrupts(wrapped=self.ArchInterrupts())
+            for i in range(self.numThreads)
         ]
 
     def connectCachedPorts(self, in_ports):

@@ -4,6 +4,8 @@ Import("*")
 
 Source("interrupts.cc")
 
+#SimObject("IntermittentCPU.py", sim_objects=["IntermittentCPU"])
+
 SimObject("IntermittentInterrupts.py",
         sim_objects=["IntermittentInterrupts"],
         enums=["IntermittentOutageSignature"]
