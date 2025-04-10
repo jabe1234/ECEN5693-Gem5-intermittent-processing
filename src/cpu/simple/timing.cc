@@ -53,6 +53,7 @@
 #include "mem/packet.hh"
 #include "mem/packet_access.hh"
 #include "params/BaseTimingSimpleCPU.hh"
+#include "sim/cur_tick.hh"
 #include "sim/faults.hh"
 #include "sim/full_system.hh"
 #include "sim/system.hh"
@@ -752,6 +753,9 @@ TimingSimpleCPU::sendFetch(const Fault &fault, const RequestPtr &req,
 void
 TimingSimpleCPU::advanceInst(const Fault &fault)
 {
+        const Tick power_out_ticks = 1000 * clockPeriod();
+        static Tick counter = 0;
+        static Tick restart_tick = 0;
     SimpleExecContext &t_info = *threadInfo[curThread];
 
     if (_status == Faulting)
@@ -797,6 +801,24 @@ TimingSimpleCPU::advanceInst(const Fault &fault)
 
         return;
     }
+
+        if (restart_tick < curTick()) {
+                counter++;
+                if (counter >= 500000) {
+                        inform("Power Outage: %d\n", curTick());
+                        EventQueue *eq = eventQueue();
+                        Event* top = eq->getHead();
+
+						do {
+                                Event* head = eq->getHead();
+                                reschedule(*head, head->when() + power_out_ticks);
+                        } while (eq->getHead() != top); 
+
+                    	inform("Power will be restored at: %d\n", curTick()+power_out_ticks);
+                        restart_tick = curTick() + power_out_ticks;
+                        counter = 0;
+                }
+        }
 
     if (!t_info.stayAtPC)
         advancePC(fault);
