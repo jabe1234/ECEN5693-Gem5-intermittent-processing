@@ -833,6 +833,25 @@ class EventQueue
             event->trace("rescheduled");
     }
 
+	void
+	rescheduleAllDelay(Tick delay) {
+		if (empty()) {
+			setCurTick(getCurTick() + delay);
+			return;
+		}
+
+		Event *ee = head;
+		while (ee != NULL) {
+			if (ee->when() > (getCurTick() + 1)) {
+				//reschedule(ee, ee->when() + delay);
+				ee->setWhen(ee->when() + delay, this);
+			}
+
+			if (ee->nextInBin != NULL) ee = ee->nextInBin;
+			else ee = ee->nextBin;
+		}
+	}
+
     Tick nextTick() const { return head->when(); }
     void setCurTick(Tick newVal) { _curTick = newVal; }
 

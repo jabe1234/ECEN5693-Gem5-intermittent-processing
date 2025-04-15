@@ -57,6 +57,7 @@
 #include "sim/faults.hh"
 #include "sim/full_system.hh"
 #include "sim/system.hh"
+#include "sim/sim_object.hh"
 
 namespace gem5
 {
@@ -753,10 +754,61 @@ TimingSimpleCPU::sendFetch(const Fault &fault, const RequestPtr &req,
 void
 TimingSimpleCPU::advanceInst(const Fault &fault)
 {
-        const Tick power_out_ticks = 1000 * clockPeriod();
-        static Tick counter = 0;
-        static Tick restart_tick = 0;
+	//const Cycles power_out_cycles = Cycles(1000);
+	const int off_cycles = 1000;
+	static Tick counter = 0;
+	static Tick restart_tick = 0;
     SimpleExecContext &t_info = *threadInfo[curThread];
+
+	/*if (restart_tick < curTick()) {
+		counter++;
+		if (counter >= 500000) {
+			inform("Power Outage @ Tick: %d\n", curTick());
+			restart_tick = curTick() + off_ticks;
+			inform("Power will be restored at: %d\n", restart_tick);
+			counter = 0;
+		}
+	} else {
+		return; //technically off
+	} */
+
+	/*if (counter >= 500000) {
+		inform("Power Outage @ T%d for %d Sim Objects\n", curTick(), SimObject::simObjectList.size());
+		for (size_t i = 0; i < SimObject::simObjectList.size(); i++) {
+			SimObject *obj = SimObject::simObjectList[i];
+
+			EventQueue *eq = obj->eventQueue();
+			Event* top = eq->getHead();
+
+			do {
+				Event *head = eq->getHead();
+				ClockedObject *cobj = dynamic_cast<ClockedObject*>(obj);
+				if (cobj) {
+					eq->reschedule(head, head->when() + divCeil(cobj->clockPeriod(), 10000));
+				} else {
+					eq->reschedule(head, head->when() + 10000);
+				}
+			} while (eq->getHead() != top);
+		}
+		counter = 0;
+	}*/
+
+	if (restart_tick < curTick()) {
+			counter++;
+			if (counter >= 500000) {
+					inform("Power Outage: %d\n", curTick());
+					//inform("#Event Queues: %d\n", mainEventQueue.size());
+					EventQueue *eq = eventQueue(); //mainEventQueue[0]
+					Tick cycleAlignedOutage = off_cycles * clockPeriod();
+
+					eq->rescheduleAllDelay(cycleAlignedOutage);
+
+					restart_tick = curTick() + cycleAlignedOutage;
+					counter = 0;
+
+					inform("Power restoration @ %d\n", restart_tick);
+			}
+	}// */
 
     if (_status == Faulting)
         return;
@@ -801,24 +853,6 @@ TimingSimpleCPU::advanceInst(const Fault &fault)
 
         return;
     }
-
-        if (restart_tick < curTick()) {
-                counter++;
-                if (counter >= 500000) {
-                        inform("Power Outage: %d\n", curTick());
-                        EventQueue *eq = eventQueue();
-                        Event* top = eq->getHead();
-
-						do {
-                                Event* head = eq->getHead();
-                                reschedule(*head, head->when() + power_out_ticks);
-                        } while (eq->getHead() != top); 
-
-                    	inform("Power will be restored at: %d\n", curTick()+power_out_ticks);
-                        restart_tick = curTick() + power_out_ticks;
-                        counter = 0;
-                }
-        }
 
     if (!t_info.stayAtPC)
         advancePC(fault);
