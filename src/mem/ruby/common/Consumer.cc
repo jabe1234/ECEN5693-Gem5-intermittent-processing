@@ -86,6 +86,9 @@ void
 Consumer::processCurrentEvent()
 {
     auto curr = m_wakeup_ticks.begin();
+	if (em->clockEdge() != *curr) {
+		std::cout << "Expected: " << em->clockEdge() << ", Current: " << *curr << std::endl;
+	}
     assert(em->clockEdge() == *curr);
 
     // remove the current tick from the wakeup list, wake up, and then schedule

@@ -150,7 +150,6 @@ class SimObject : public EventManager, public Serializable, public Drainable,
     typedef std::vector<SimObject *> SimObjectList;
 
     /** List of all instantiated simulation objects. */
-    static SimObjectList simObjectList;
 
     /** Helper to resolve an object given its name. */
     static SimObjectResolver *_objNameResolver;
@@ -167,6 +166,7 @@ class SimObject : public EventManager, public Serializable, public Drainable,
     const SimObjectParams &_params;
 
   public:
+    static SimObjectList simObjectList;
     typedef SimObjectParams Params;
     /**
      * @return This function returns the cached copy of the object parameters.

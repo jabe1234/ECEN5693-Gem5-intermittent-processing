@@ -34,7 +34,8 @@ board.set_kernel_disk_workload(
 ) #"""
 
 rsrc = 'arm-gapbs-tc-run'
-board.set_workload( obtain_resource(rsrc) )
+rsrc2 = 'arm-gapbs-bfs-run'
+board.set_workload( obtain_resource(rsrc2) )
 
 sim = Simulator(board)
 sim.run()

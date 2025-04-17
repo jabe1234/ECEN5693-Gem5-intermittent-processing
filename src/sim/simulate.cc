@@ -298,6 +298,9 @@ doSimLoop(EventQueue *eventq)
         // there should always be at least one event (the SimLoopExitEvent
         // we just scheduled) in the queue
         assert(!eventq->empty());
+		if (curTick() > eventq->nextTick()) {
+			inform("curTick: %d > eventTick: %d, event scheduled in the past", curTick(), eventq->nextTick());
+		}
         assert(curTick() <= eventq->nextTick() &&
                "event scheduled in the past");
 
