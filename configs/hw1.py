@@ -1,5 +1,6 @@
 from gem5.components.boards.simple_board import SimpleBoard
 from gem5.components.boards.x86_board import X86Board
+from gem5.components.cachehierarchies.classic.no_cache import NoCache
 from gem5.components.cachehierarchies.ruby.mesi_two_level_cache_hierarchy import (
     MESITwoLevelCacheHierarchy,
 )
@@ -12,9 +13,11 @@ from gem5.simulate.simulator import Simulator
 
 cpu = SimpleProcessor(CPUTypes("timing"), 1, ISA("arm"))
 
-cachehierarchy = MESITwoLevelCacheHierarchy(
+mesi_cachehierarchy = MESITwoLevelCacheHierarchy(
     "64KiB", "16", "64KiB", "16", "1MiB", "32", 1
 )
+
+no_cache = NoCache()
 
 dram = SingleChannelDDR4_2400(size="2GiB")
 
@@ -22,7 +25,7 @@ board = SimpleBoard(
     "3GHz",
     cpu,
     dram,
-    cachehierarchy,
+    no_cache #cachehierarchy,
 )
 
 """

@@ -835,16 +835,11 @@ class EventQueue
 
 	void
 	rescheduleAllDelay(Tick delay) {
-		if (empty()) {
-			inform("reschedule called on empty queue");
-			setCurTick(getCurTick() + delay);
-			return;
-		}
+		if (empty()) return;
 
 		Event *ee = head;
 		while (ee != NULL) {
-			if (ee->when() > (getCurTick() + 1)) {
-				//reschedule(ee, ee->when() + delay);
+			if (!ee->squashed() && !ee->isExitEvent()) {
 				ee->setWhen(ee->when() + delay, this);
 			}
 
@@ -855,7 +850,6 @@ class EventQueue
 		for (auto it = async_queue.begin(); it != async_queue.end(); ++it) {
 			(*it)->setWhen((*it)->when() + delay, this);
 		}
-		setCurTick(curTick() + delay);
 	}
 
     Tick nextTick() const { return head->when(); }

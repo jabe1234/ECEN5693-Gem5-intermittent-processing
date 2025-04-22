@@ -23,7 +23,6 @@ Intermittent::Restored::invoke(
 }
 
 bool Intermittent::Interrupts::checkInterrupts() const {
-                dumpMainQueue();
         for (int i = 0; i < Intermittent::NumInterruptTypes; i++) {
                 if (interrupts[i]) return true;
         }

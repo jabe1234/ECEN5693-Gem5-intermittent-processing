@@ -770,30 +770,37 @@ TimingSimpleCPU::advanceInst(const Fault &fault)
 		}
 	} else {
 		return; //technically off
-	} */
-
-	/*if (counter >= 500000) {
-		inform("Power Outage @ T%d for %d Sim Objects\n", curTick(), SimObject::simObjectList.size());
-		for (size_t i = 0; i < SimObject::simObjectList.size(); i++) {
-			SimObject *obj = SimObject::simObjectList[i];
-
-			EventQueue *eq = obj->eventQueue();
-			Event* top = eq->getHead();
-
-			do {
-				Event *head = eq->getHead();
-				ClockedObject *cobj = dynamic_cast<ClockedObject*>(obj);
-				if (cobj) {
-					eq->reschedule(head, head->when() + divCeil(cobj->clockPeriod(), 10000));
-				} else {
-					eq->reschedule(head, head->when() + 10000);
-				}
-			} while (eq->getHead() != top);
-		}
-		counter = 0;
 	}*/
-
+	
 	if (restart_tick < curTick()) {
+		counter++;
+		if (counter >= 500000) {
+			inform("Power Outage @ T%d for %d Sim Objects\n", curTick(), SimObject::simObjectList.size());
+			for (size_t i = 0; i < SimObject::simObjectList.size(); i++) {
+				SimObject *obj = SimObject::simObjectList[i];
+
+				EventQueue *eq = obj->eventQueue();
+				
+				eq->rescheduleAllDelay(off_cycles);
+				//Event* top = eq->getHead();
+
+				/* do {
+					Event *head = eq->getHead();
+					ClockedObject *cobj = dynamic_cast<ClockedObject*>(obj);
+					if (cobj) {
+						eq->reschedule(head, head->when() + divCeil(cobj->clockPeriod(), 10000));
+					} else {
+						eq->reschedule(head, head->when() + 10000);
+					}
+				} while (eq->getHead() != top); // */
+			}
+
+			restart_tick = curTick() + off_cycles;
+			counter = 0;
+		}
+	}// */
+
+	/*if (restart_tick < curTick()) {
 			counter++;
 			if (counter >= 500000) {
 					inform("Power Outage: %d\n", curTick());
